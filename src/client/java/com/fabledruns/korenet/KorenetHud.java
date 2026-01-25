@@ -29,10 +29,12 @@ public class KorenetHud {
 
         String pingText;
         String jitterText;
+        boolean hasPingValue = false;
 
         if (demoMode) {
             pingText = "Ping: 42ms";
             jitterText = "Jitter: 7ms";
+            hasPingValue = true;
         } else if (mc.player == null || mc.getNetworkHandler() == null) {
             pingText = "Ping: N/A";
             jitterText = "Jitter: N/A";
@@ -42,6 +44,7 @@ public class KorenetHud {
         } else {
             pingText = ping < 0 ? "Ping: --" : "Ping: " + ping + "ms";
             jitterText = "Jitter: " + jitter + "ms";
+            hasPingValue = ping >= 0;
         }
 
         int screenWidth = mc.getWindow().getScaledWidth();
@@ -63,7 +66,20 @@ public class KorenetHud {
         if (alpha <= 0.05f) return;
 
         int alphaInt = (int) (alpha * 255);
-        int pingColor = (0xFFFFFF & 0x00FFFFFF) | (alphaInt << 24);
+        int pingBaseColor;
+        if (hasPingValue) {
+            int effectivePing = demoMode ? 42 : ping;
+            if (effectivePing < 75) {
+                pingBaseColor = 0x55FF55;
+            } else if (effectivePing <= 160) {
+                pingBaseColor = 0xFFFF55;
+            } else {
+                pingBaseColor = 0xFF5555;
+            }
+        } else {
+            pingBaseColor = 0xFFFFFF;
+        }
+        int pingColor = (pingBaseColor & 0x00FFFFFF) | (alphaInt << 24);
         int jitterColor = (0xAAAAAA & 0x00FFFFFF) | (alphaInt << 24);
         int bgAlpha = (int) (alpha * 0x80);
         int bgColor = (bgAlpha << 24) | 0x000000;
