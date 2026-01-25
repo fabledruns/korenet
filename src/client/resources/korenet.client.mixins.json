@@ -1,0 +1,11 @@
+{
+	"required": true,
+	"package": "com.fabledruns.korenet.mixin.client",
+	"compatibilityLevel": "JAVA_21",
+	"client": [
+		"KorenetHudMixin"
+	],
+	"injectors": {
+		"defaultRequire": 1
+	}
+}

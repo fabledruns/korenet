@@ -1,0 +1,35 @@
+{
+	"schemaVersion": 1,
+	"id": "korenet",
+	"version": "${version}",
+	"name": "Korenet",
+	"description": "Korenet improves Minecraft’s network feedback by giving accurate, real-time connection quality info without unfair advantages.",
+	"authors": [
+		"FabledRuns"
+	],
+	"contact": {
+		"homepage": "https://fabricmc.net/",
+		"sources": "https://github.com/fabledruns/korenet"
+	},
+	"license": "MIT",
+	"icon": "assets/korenet/icon.png",
+	"environment": "client",
+	"entrypoints": {
+		"client": [
+			"com.fabledruns.korenet.KorenetClient"
+		]
+	},
+	"mixins": [
+		"korenet.mixins.json",
+		{
+			"config": "korenet.client.mixins.json",
+			"environment": "client"
+		}
+	],
+	"depends": {
+		"fabricloader": ">=0.18.1",
+		"minecraft": "~1.21.8",
+		"java": ">=21",
+		"fabric-api": "*"
+	}
+}
