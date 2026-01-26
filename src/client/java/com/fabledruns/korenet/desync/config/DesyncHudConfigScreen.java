@@ -9,6 +9,9 @@ import net.minecraft.client.gui.widget.CyclingButtonWidget;
 import net.minecraft.client.gui.widget.SliderWidget;
 import net.minecraft.text.Text;
 
+/**
+ * Screen used to configure the desync HUD placement and appearance.
+ */
 public class DesyncHudConfigScreen extends Screen {
 
     private final Screen parent;
@@ -21,25 +24,30 @@ public class DesyncHudConfigScreen extends Screen {
         this.parent = parent;
     }
 
+    /**
+     * Builds the UI controls for the desync HUD settings.
+     */
     @Override
     protected void init() {
         int w = this.width;
         int h = this.height;
+        int x = w / 2 - 100;
         int yStart = h / 2 + 20;
+        int row = 24;
 
         super.init();
 
-        ScreenMouseEvents.afterMouseClick(this).register((screen, mouseX, mouseY, button) ->
-            handleMouseClicked(mouseX, mouseY, button)
+        ScreenMouseEvents.afterMouseClick(this).register(
+            (screen, mouseX, mouseY, button) -> handleMouseClicked(mouseX, mouseY, button)
         );
-        ScreenMouseEvents.afterMouseRelease(this).register((screen, mouseX, mouseY, button) ->
-            handleMouseReleased(mouseX, mouseY, button)
+        ScreenMouseEvents.afterMouseRelease(this).register(
+            (screen, mouseX, mouseY, button) -> handleMouseReleased(mouseX, mouseY, button)
         );
-        ScreenMouseEvents.afterMouseDrag(this).register((screen, mouseX, mouseY, button, deltaX, deltaY) ->
-            handleMouseDragged(mouseX, mouseY, button, deltaX, deltaY)
+        ScreenMouseEvents.afterMouseDrag(this).register(
+            (screen, mouseX, mouseY, button, deltaX, deltaY) -> handleMouseDragged(mouseX, mouseY, button, deltaX, deltaY)
         );
 
-        this.addDrawableChild(new FloatSliderWidget(w / 2 - 100, yStart, 200, 20,
+        this.addDrawableChild(new FloatSliderWidget(x, yStart, 200, 20,
             Text.literal("Scale: " + String.format("%.2fx", DesyncHudConfig.scale)),
             (DesyncHudConfig.scale - 0.5f) / 1.5f) {
             @Override
@@ -53,7 +61,7 @@ public class DesyncHudConfigScreen extends Screen {
             }
         });
 
-        this.addDrawableChild(new FloatSliderWidget(w / 2 - 100, yStart + 24, 200, 20,
+        this.addDrawableChild(new FloatSliderWidget(x, yStart + row, 200, 20,
             Text.literal("Opacity: " + String.format("%.0f%%", DesyncHudConfig.opacity * 100)),
             DesyncHudConfig.opacity) {
             @Override
@@ -68,25 +76,37 @@ public class DesyncHudConfigScreen extends Screen {
         });
 
         this.addDrawableChild(CyclingButtonWidget.onOffBuilder(DesyncHudConfig.autoHide)
-            .build(w / 2 - 100, yStart + 48, 200, 20, Text.literal("Auto-Hide"),
+            .build(x, yStart + row * 2, 200, 20, Text.literal("Auto-Hide"),
                 (button, value) -> DesyncHudConfig.autoHide = value));
 
         this.addDrawableChild(CyclingButtonWidget.onOffBuilder(DesyncHudConfig.showBackground)
-            .build(w / 2 - 100, yStart + 72, 200, 20, Text.literal("Show Background"),
+            .build(x, yStart + row * 3, 200, 20, Text.literal("Show Background"),
                 (button, value) -> DesyncHudConfig.showBackground = value));
 
         this.addDrawableChild(ButtonWidget.builder(Text.literal("Done"), button -> {
             DesyncHudConfig.save();
             this.client.setScreen(this.parent);
-        }).dimensions(w / 2 - 100, h - 30, 200, 20).build());
+        }).dimensions(x, h - 30, 200, 20).build());
     }
 
+    /**
+     * Renders a translucent backdrop and a live HUD preview.
+     */
     @Override
     public void render(DrawContext context, int mouseX, int mouseY, float delta) {
         context.fill(0, 0, this.width, this.height, 0x80000000);
         DesyncHudRenderer.renderHudDemo(context);
         context.drawCenteredTextWithShadow(this.textRenderer, Text.literal("Click and drag the HUD to move"), this.width / 2, 20, 0xFFFFFF);
         super.render(context, mouseX, mouseY, delta);
+    }
+
+    /**
+     * Persists config when leaving the screen (Esc/back).
+     */
+    @Override
+    public void close() {
+        DesyncHudConfig.save();
+        super.close();
     }
 
     private void handleMouseClicked(double mouseX, double mouseY, int button) {

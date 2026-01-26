@@ -8,7 +8,7 @@
 		"FabledRuns"
 	],
 	"contact": {
-		"homepage": "https://fabricmc.net/",
+		"homepage": "https://modrinth.com/mod/korenet",
 		"sources": "https://github.com/fabledruns/korenet"
 	},
 	"license": "MIT",
@@ -17,6 +17,9 @@
 	"entrypoints": {
 		"client": [
 			"com.fabledruns.korenet.KorenetClient"
+		],
+		"modmenu": [
+			"com.fabledruns.korenet.KorenetModMenuIntegration"
 		]
 	},
 	"mixins": [
@@ -31,5 +34,8 @@
 		"minecraft": "~1.21.8",
 		"java": ">=21",
 		"fabric-api": "*"
+	},
+	"suggests": {
+		"modmenu": "*"
 	}
 }

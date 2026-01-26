@@ -1,4 +1,4 @@
-package com.fabledruns.korenet;
+package com.fabledruns.korenet.config;
 
 public class KorenetConfig {
     public boolean enabled = true;

@@ -4,12 +4,14 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import net.fabricmc.loader.api.FabricLoader;
 
-import java.io.File;
-import java.io.FileReader;
-import java.io.FileWriter;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class DesyncHudConfig {
+    private static final Logger LOGGER = LoggerFactory.getLogger("korenet");
     public static int x = 0;
     public static int y = -20;
     public static float scale = 1.0f;
@@ -17,30 +19,31 @@ public class DesyncHudConfig {
     public static boolean autoHide = true;
     public static boolean showBackground = true;
 
-    private static final File CONFIG_FILE = FabricLoader.getInstance().getConfigDir().resolve("korenet_desync_hud.json").toFile();
+    private static final Path CONFIG_PATH = FabricLoader.getInstance().getConfigDir().resolve("korenet_desync_hud.json");
     private static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
 
     public static void save() {
-        try (FileWriter writer = new FileWriter(CONFIG_FILE)) {
-            GSON.toJson(new ConfigData(x, y, scale, opacity, autoHide, showBackground), writer);
+        try {
+            Files.createDirectories(CONFIG_PATH.getParent());
+            Files.writeString(CONFIG_PATH, GSON.toJson(new ConfigData(x, y, scale, opacity, autoHide, showBackground)));
         } catch (IOException e) {
-            e.printStackTrace();
+            LOGGER.error("Failed to save desync HUD config", e);
         }
     }
 
     public static void load() {
-        if (CONFIG_FILE.exists()) {
-            try (FileReader reader = new FileReader(CONFIG_FILE)) {
-                ConfigData data = GSON.fromJson(reader, ConfigData.class);
-                x = data.x;
-                y = data.y;
-                scale = data.scale;
-                opacity = data.opacity;
-                autoHide = data.autoHide;
-                showBackground = data.showBackground;
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+        if (Files.notExists(CONFIG_PATH)) return;
+        try {
+            ConfigData data = GSON.fromJson(Files.readString(CONFIG_PATH), ConfigData.class);
+            if (data == null) return;
+            x = data.x;
+            y = data.y;
+            scale = data.scale;
+            opacity = data.opacity;
+            autoHide = data.autoHide;
+            showBackground = data.showBackground;
+        } catch (IOException e) {
+            LOGGER.error("Failed to load desync HUD config", e);
         }
     }
 

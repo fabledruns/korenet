@@ -1,4 +1,4 @@
-package com.fabledruns.korenet;
+package com.fabledruns.korenet.config;
 
 import net.fabricmc.fabric.api.client.screen.v1.ScreenMouseEvents;
 import net.minecraft.client.gui.DrawContext;
@@ -9,6 +9,9 @@ import net.minecraft.client.gui.widget.SliderWidget;
 import net.minecraft.text.Text;
 
 import java.io.IOException;
+
+import com.fabledruns.korenet.KorenetClient;
+import com.fabledruns.korenet.hud.KorenetHud;
 
 public class KorenetHudConfigScreen extends Screen {
 
@@ -29,7 +32,7 @@ public class KorenetHudConfigScreen extends Screen {
     protected void init() {
         int w = this.width;
         int h = this.height;
-        int yStart = h / 2 + 20;
+        int yStart = h / 2 - 20;
 
         super.init();
 
@@ -43,7 +46,15 @@ public class KorenetHudConfigScreen extends Screen {
             handleMouseDragged(mouseX, mouseY, button, deltaX, deltaY)
         );
 
-        this.addDrawableChild(new FloatSliderWidget(w / 2 - 100, yStart, 200, 20,
+        this.addDrawableChild(CyclingButtonWidget.onOffBuilder(KorenetClient.CONFIG.enabled)
+            .build(w / 2 - 100, yStart, 200, 20, Text.literal("Mod Enabled"),
+                (button, value) -> KorenetClient.CONFIG.enabled = value));
+
+        this.addDrawableChild(CyclingButtonWidget.onOffBuilder(KorenetClient.CONFIG.showHud)
+            .build(w / 2 - 100, yStart + 24, 200, 20, Text.literal("Show HUD"),
+                (button, value) -> KorenetClient.CONFIG.showHud = value));
+
+        this.addDrawableChild(new FloatSliderWidget(w / 2 - 100, yStart + 48, 200, 20,
             Text.literal("Scale: " + String.format("%.2fx", KorenetClient.CONFIG.hudScale)),
             (KorenetClient.CONFIG.hudScale - 0.5f) / 1.5f) {
             @Override
@@ -57,7 +68,7 @@ public class KorenetHudConfigScreen extends Screen {
             }
         });
 
-        this.addDrawableChild(new FloatSliderWidget(w / 2 - 100, yStart + 24, 200, 20,
+        this.addDrawableChild(new FloatSliderWidget(w / 2 - 100, yStart + 72, 200, 20,
             Text.literal("Opacity: " + String.format("%.0f%%", KorenetClient.CONFIG.hudOpacity * 100)),
             KorenetClient.CONFIG.hudOpacity) {
             @Override
@@ -71,7 +82,7 @@ public class KorenetHudConfigScreen extends Screen {
             }
         });
 
-        this.addDrawableChild(new FloatSliderWidget(w / 2 - 100, yStart + 48, 200, 20,
+        this.addDrawableChild(new FloatSliderWidget(w / 2 - 100, yStart + 96, 200, 20,
             Text.literal("Update Interval: " + KorenetClient.CONFIG.updateIntervalMs + "ms"),
             intervalToSlider(KorenetClient.CONFIG.updateIntervalMs)) {
             @Override
@@ -86,7 +97,7 @@ public class KorenetHudConfigScreen extends Screen {
         });
 
         this.addDrawableChild(CyclingButtonWidget.onOffBuilder(KorenetClient.CONFIG.hudShowBackground)
-            .build(w / 2 - 100, yStart + 72, 200, 20, Text.literal("Show Background"),
+            .build(w / 2 - 100, yStart + 120, 200, 20, Text.literal("Show Background"),
                 (button, value) -> KorenetClient.CONFIG.hudShowBackground = value));
 
         this.addDrawableChild(ButtonWidget.builder(Text.literal("Done"), button -> {
@@ -105,6 +116,16 @@ public class KorenetHudConfigScreen extends Screen {
         KorenetHud.renderHudDemo(context);
         context.drawCenteredTextWithShadow(this.textRenderer, Text.literal("Click and drag the HUD to move"), this.width / 2, 20, 0xFFFFFF);
         super.render(context, mouseX, mouseY, delta);
+    }
+
+    @Override
+    public void close() {
+        try {
+            ConfigManager.save(KorenetClient.CONFIG);
+        } catch (IOException e) {
+            KorenetClient.LOGGER.error("Failed to save HUD config", e);
+        }
+        super.close();
     }
 
     private void handleMouseClicked(double mouseX, double mouseY, int button) {
