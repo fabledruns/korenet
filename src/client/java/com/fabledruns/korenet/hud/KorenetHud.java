@@ -27,7 +27,7 @@ public class KorenetHud {
     }
 
     private static void renderHudContent(DrawContext context, MinecraftClient mc, boolean demoMode) {
-        int ping = PingTracker.getPing();
+        int ping   = PingTracker.getPing();
         int jitter = PingTracker.getJitter();
 
         HudText hudText = switch (getDisplayMode(mc, demoMode)) {

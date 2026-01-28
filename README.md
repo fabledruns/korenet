@@ -1,7 +1,7 @@
-# KoreNet
+# Korenet
 
 Ever feel like your client and the server are having two completely different conversations?  
-Yeah. KoreNet shows you *what’s actually happening*.
+Yeah. Korenet shows you *what’s actually happening*.
 
 ## What it does
 
