@@ -31,10 +31,6 @@ public class KorenetClient implements ClientModInitializer {
     @Override
     public void onInitializeClient() {
         CONFIG = ConfigManager.load();
-        if (CONFIG == null) {
-            LOGGER.error("Failed to load config, using defaults");
-            CONFIG = new KorenetConfig();
-        }
         migrateLegacyUpdateInterval();
         LOGGER.info("Loaded config, HUD={}", CONFIG.showHud);
 
@@ -60,7 +56,7 @@ public class KorenetClient implements ClientModInitializer {
      * Migrates legacy update interval values to the current default.
      */
     private static void migrateLegacyUpdateInterval() {
-        if (CONFIG.updateIntervalMs != LEGACY_INTERVAL_MS) return;
+        if (CONFIG == null || CONFIG.updateIntervalMs != LEGACY_INTERVAL_MS) return;
         CONFIG.updateIntervalMs = DEFAULT_INTERVAL_MS;
         try {
             ConfigManager.save(CONFIG);
