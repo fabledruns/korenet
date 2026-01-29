@@ -47,7 +47,7 @@ The ping text color adapts to latency:
 - **Red**: above 160 ms
 
 ## Compatibility
-- **Minecraft**: 1.21.8+ (as declared in `fabric.mod.json`)
+- **Minecraft**: 1.21.x (as declared in `fabric.mod.json`)
 - **Java**: 21+
 - **Fabric API**: required
 
