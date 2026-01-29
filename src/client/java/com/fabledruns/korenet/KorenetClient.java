@@ -31,6 +31,10 @@ public class KorenetClient implements ClientModInitializer {
     @Override
     public void onInitializeClient() {
         CONFIG = ConfigManager.load();
+        if (CONFIG == null) {
+            LOGGER.error("Failed to load config, using defaults");
+            CONFIG = new KorenetConfig();
+        }
         migrateLegacyUpdateInterval();
         LOGGER.info("Loaded config, HUD={}", CONFIG.showHud);
 
