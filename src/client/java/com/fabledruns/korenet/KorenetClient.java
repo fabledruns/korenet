@@ -5,9 +5,9 @@ import com.fabledruns.korenet.config.KorenetConfig;
 import com.fabledruns.korenet.desync.config.DesyncHudConfig;
 import com.fabledruns.korenet.desync.hud.DesyncHudRenderer;
 import com.fabledruns.korenet.desync.input.DesyncHudKeybinds;
+import com.fabledruns.korenet.desync.input.HudKeybinds;
 import com.fabledruns.korenet.desync.logic.AttackTracker;
 import com.fabledruns.korenet.desync.logic.DesyncDetector;
-import com.fabledruns.korenet.hud.HudKeybinds;
 import com.fabledruns.korenet.hud.KorenetHud;
 
 import net.fabricmc.api.ClientModInitializer;
@@ -56,7 +56,7 @@ public class KorenetClient implements ClientModInitializer {
      * Migrates legacy update interval values to the current default.
      */
     private static void migrateLegacyUpdateInterval() {
-        if (CONFIG.updateIntervalMs != LEGACY_INTERVAL_MS) return;
+        if (CONFIG == null || CONFIG.updateIntervalMs != LEGACY_INTERVAL_MS) return;
         CONFIG.updateIntervalMs = DEFAULT_INTERVAL_MS;
         try {
             ConfigManager.save(CONFIG);

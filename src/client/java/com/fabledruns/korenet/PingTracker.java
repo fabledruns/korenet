@@ -3,18 +3,20 @@ package com.fabledruns.korenet;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.PlayerListEntry;
 
-import java.util.ArrayList;
-import java.util.List;
 
 public class PingTracker {
 
     private static final int MAX_SAMPLES = 20;
-    private static final List<Integer> samples = new ArrayList<>();
+    private static final int TICK_MS = 50;
+    private static final int[] samples = new int[MAX_SAMPLES];
+    private static int sampleCount = 0;
+    private static int sampleIndex = 0;
     private static int progressMs = 0;
 
     public static void tick(int intervalMs) {
-        progressMs += 50;
-        if (progressMs < intervalMs) return;
+        progressMs += TICK_MS;
+        int clampedIntervalMs = Math.max(intervalMs, TICK_MS);
+        if (progressMs < clampedIntervalMs) return;
         progressMs = 0;
 
         MinecraftClient mc = MinecraftClient.getInstance();
@@ -29,38 +31,41 @@ public class PingTracker {
 
         int ping = entry.getLatency();
 
-        synchronized (samples) {
-            samples.add(ping);
-            if (samples.size() > MAX_SAMPLES) {
-                samples.remove(0);
-            }
+        samples[sampleIndex] = ping;
+        sampleIndex = (sampleIndex + 1) % MAX_SAMPLES;
+        if (sampleCount < MAX_SAMPLES) {
+            sampleCount++;
         }
     }
 
     public static int getPing() {
-        synchronized (samples) {
-            return samples.isEmpty() ? -1 : samples.get(samples.size() - 1);
-        }
+        if (sampleCount == 0) return -1;
+        int lastIndex = sampleIndex - 1;
+        if (lastIndex < 0) lastIndex = MAX_SAMPLES - 1;
+        return samples[lastIndex];
     }
 
     public static int getJitter() {
-        synchronized (samples) {
-            if (samples.size() < 2) return 0;
+        if (sampleCount < 2) return 0;
 
-            int min = Integer.MAX_VALUE;
-            int max = Integer.MIN_VALUE;
+        int min = Integer.MAX_VALUE;
+        int max = Integer.MIN_VALUE;
 
-            for (int p : samples) {
-                if (p < min) min = p;
-                if (p > max) max = p;
-            }
-            return max - min;
+        int startIndex = sampleIndex - sampleCount;
+        if (startIndex < 0) startIndex += MAX_SAMPLES;
+
+        for (int i = 0; i < sampleCount; i++) {
+            int index = (startIndex + i) % MAX_SAMPLES;
+            int p = samples[index];
+            if (p < min) min = p;
+            if (p > max) max = p;
         }
+        return max - min;
     }
 
     public static void clear() {
-        synchronized (samples) {
-            samples.clear();
-        }
+        sampleCount = 0;
+        sampleIndex = 0;
+        progressMs = 0;
     }
 }
